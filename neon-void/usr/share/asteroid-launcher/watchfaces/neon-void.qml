@@ -18,17 +18,18 @@ Item {
     anchors.fill: parent
 
     readonly property var radian: Math.PI / 180
-    
-    // Finalized artwork palette with neon yellow vibrancy
-    readonly property color colorPurple: "#A020F0" // Electric Purple (Armor)
-    readonly property color colorGreen: "#39FF14"  // Hyper Neon Green (Glow)
-    readonly property color colorYellow: "#FFFF00" // Electric Yellow (Chest Highlights)
+
+    // Palette sampled from EVA-01 reference image
+    readonly property color colorPurple: "#a870c4" // Armor purple (sampled)
+    readonly property color colorPurpleDark: "#541c54" // Deep armor shadow
+    readonly property color colorGreen: "#8cc454"  // Visor / organic green (sampled)
+    readonly property color colorYellow: "#e0a81c" // Warm gold — chest markings (sampled)
     readonly property color colorOrange: "#FF8C00" // Solar Orange (Energy)
     readonly property color colorRed: "#FF0000"    // Berserk Warning
-    
-    // Artwork Background
-    readonly property color colorBgOuter: "#000000" // Pure Black
-    readonly property color colorBgInner: "#2B0505" // Dark Maroon Glow
+
+    // Background — deep crimson-black from image bottom region
+    readonly property color colorBgOuter: "#000000"
+    readonly property color colorBgInner: "#380000"
 
     // Unified "Breathing" Controller
     property real breathingFactor: 1.0
@@ -207,6 +208,92 @@ Item {
             ctx.beginPath(); ctx.moveTo(width-margin-bSize, height-margin); ctx.lineTo(width-margin, height-margin); ctx.lineTo(width-margin, height-margin-bSize); ctx.stroke()
         }
         onOpacityChanged: requestPaint()
+    }
+
+    // EVA-01 motif: mono-eye visor, forehead horn, shoulder armor plates
+    Canvas {
+        id: evaMotifCanvas
+        anchors.fill: parent
+        visible: !displayAmbient
+        property real breath: breathingFactor
+        onPaint: {
+            var ctx = getContext("2d")
+            ctx.reset()
+            var cx = width / 2, cy = height / 2
+
+            // --- Shoulder armor plates (left & right) ---
+            function drawPlate(side) {
+                var s = (side === "left") ? -1 : 1
+                var px = cx + s * width * 0.42
+                var py = cy - height * 0.06
+                var pw = width * 0.10
+                var ph = height * 0.22
+                ctx.beginPath()
+                ctx.moveTo(px,           py)
+                ctx.lineTo(px + s*pw,    py - height*0.04)
+                ctx.lineTo(px + s*pw,    py + ph + height*0.04)
+                ctx.lineTo(px,           py + ph)
+                ctx.closePath()
+                ctx.fillStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.55 * breath)
+                ctx.fill()
+                ctx.lineWidth = 1.5
+                ctx.strokeStyle = Qt.rgba(colorPurple.r, colorPurple.g, colorPurple.b, 0.7 * breath)
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(px,        py + ph * 0.38)
+                ctx.lineTo(px + s*pw, py + ph * 0.34)
+                ctx.lineWidth = 2
+                ctx.strokeStyle = Qt.rgba(colorYellow.r, colorYellow.g, colorYellow.b, 0.6 * breath)
+                ctx.stroke()
+            }
+            drawPlate("left")
+            drawPlate("right")
+
+            // --- Forehead horn ---
+            var hornBaseW = width * 0.07
+            var hornTip   = cy - height * 0.47
+            var hornBase  = cy - height * 0.32
+            ctx.beginPath()
+            ctx.moveTo(cx,              hornTip)
+            ctx.lineTo(cx - hornBaseW,  hornBase)
+            ctx.lineTo(cx + hornBaseW,  hornBase)
+            ctx.closePath()
+            ctx.fillStyle = Qt.rgba(colorYellow.r, colorYellow.g, colorYellow.b, 0.75 * breath)
+            ctx.fill()
+            ctx.beginPath()
+            ctx.moveTo(cx,                  hornTip + height*0.01)
+            ctx.lineTo(cx - hornBaseW*0.45, hornBase - height*0.005)
+            ctx.lineTo(cx + hornBaseW*0.45, hornBase - height*0.005)
+            ctx.closePath()
+            ctx.fillStyle = Qt.rgba(1, 1, 0.8, 0.35 * breath)
+            ctx.fill()
+
+            // --- Mono-eye visor ---
+            var visY  = cy - height * 0.22
+            var visRx = width * 0.22
+            var visRy = height * 0.038
+            var grd = ctx.createRadialGradient(cx, visY, 0, cx, visY, visRx)
+            grd.addColorStop(0.0, Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.5 * breath))
+            grd.addColorStop(0.6, Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.15 * breath))
+            grd.addColorStop(1.0, "transparent")
+            ctx.fillStyle = grd
+            ctx.beginPath()
+            ctx.ellipse(cx - visRx*1.2, visY - visRy*3, visRx*2.4, visRy*6)
+            ctx.fill()
+            ctx.beginPath()
+            ctx.ellipse(cx - visRx, visY - visRy, visRx*2, visRy*2)
+            ctx.fillStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.55 * breath)
+            ctx.fill()
+            ctx.lineWidth = 1.5
+            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.9 * breath)
+            ctx.stroke()
+            ctx.beginPath()
+            ctx.ellipse(cx - visRx*0.55, visY - visRy*0.55, visRx*0.5, visRy*0.8)
+            ctx.fillStyle = Qt.rgba(1, 1, 1, 0.3 * breath)
+            ctx.fill()
+        }
+        onBreathChanged: requestPaint()
+        Component.onCompleted: requestPaint()
     }
 
     // AT Field Core
