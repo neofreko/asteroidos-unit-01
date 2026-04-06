@@ -111,7 +111,7 @@ Item {
         }
     }
 
-    // Tactical Arcs
+    // Tactical Arcs (with isomorphic mirror — each arc is echoed 180° opposite)
     Canvas {
         id: tacticalCanvas
         anchors.fill: parent
@@ -124,22 +124,32 @@ Item {
         property real breath: breathingFactor
         onPaint: {
             var ctx = getContext("2d"); ctx.reset(); var centerX = width / 2; var centerY = height / 2
-            drawGlossyArc(ctx, centerX, centerY, width * 0.47, (seconds - 15) * 6, colorGreen, 2, true)
-            drawGlossyArc(ctx, centerX, centerY, width * 0.41, (minutes - 15) * 6, colorPurple, 4, false)
-            drawGlossyArc(ctx, centerX, centerY, width * 0.35, ((hours % 12 - 3) * 30 + minutes * 0.5), colorYellow, 6, false)
+            var secAngle  = (seconds - 15) * 6
+            var minAngle  = (minutes - 15) * 6
+            var hourAngle = (hours % 12 - 3) * 30 + minutes * 0.5
+
+            // Primary arcs
+            drawGlossyArc(ctx, centerX, centerY, width * 0.47, secAngle,  colorGreen,  2, true,  1.0)
+            drawGlossyArc(ctx, centerX, centerY, width * 0.41, minAngle,  colorPurple, 4, false, 1.0)
+            drawGlossyArc(ctx, centerX, centerY, width * 0.35, hourAngle, colorYellow, 6, false, 1.0)
+
+            // Isomorphic mirrors — same arcs reflected 180° opposite, at reduced opacity
+            drawGlossyArc(ctx, centerX, centerY, width * 0.47, secAngle  + 180, colorGreen,  2, true,  0.35)
+            drawGlossyArc(ctx, centerX, centerY, width * 0.41, minAngle  + 180, colorPurple, 4, false, 0.35)
+            drawGlossyArc(ctx, centerX, centerY, width * 0.35, hourAngle + 180, colorYellow, 6, false, 0.35)
         }
-        function drawGlossyArc(ctx, x, y, radius, angle, color, baseWidth, isSecond) {
+        function drawGlossyArc(ctx, x, y, radius, angle, color, baseWidth, isSecond, opacityScale) {
             ctx.setLineDash(isSecond ? [2, 12] : [15, 6]); var startAngle = (angle - 25) * radian; var endAngle = (angle + 25) * radian
-            ctx.beginPath(); ctx.arc(x, y, radius, startAngle - 0.2, endAngle + 0.2, false); ctx.lineWidth = baseWidth * 5 * breath; ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, 0.1 * breath); ctx.stroke()
-            ctx.beginPath(); ctx.arc(x, y, radius, startAngle - 0.1, endAngle + 0.1, false); ctx.lineWidth = baseWidth * 3.5 * breath; ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, 0.35 * breath); ctx.stroke()
-            ctx.beginPath(); ctx.arc(x, y, radius, startAngle, endAngle, false); ctx.lineWidth = baseWidth; ctx.strokeStyle = color; ctx.stroke()
-            ctx.beginPath(); ctx.arc(x, y, radius - 1, startAngle + 0.05, endAngle - 0.05, false); ctx.lineWidth = 1.2; ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.9); ctx.stroke()
+            ctx.beginPath(); ctx.arc(x, y, radius, startAngle - 0.2, endAngle + 0.2, false); ctx.lineWidth = baseWidth * 5 * breath; ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, 0.1 * breath * opacityScale); ctx.stroke()
+            ctx.beginPath(); ctx.arc(x, y, radius, startAngle - 0.1, endAngle + 0.1, false); ctx.lineWidth = baseWidth * 3.5 * breath; ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, 0.35 * breath * opacityScale); ctx.stroke()
+            ctx.beginPath(); ctx.arc(x, y, radius, startAngle, endAngle, false); ctx.lineWidth = baseWidth; ctx.strokeStyle = Qt.rgba(color.r, color.g, color.b, opacityScale); ctx.stroke()
+            ctx.beginPath(); ctx.arc(x, y, radius - 1, startAngle + 0.05, endAngle - 0.05, false); ctx.lineWidth = 1.2; ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.9 * opacityScale); ctx.stroke()
             ctx.setLineDash([])
         }
         onBreathChanged: requestPaint()
     }
 
-    // Ambient Indicators
+    // Ambient Indicators (with isomorphic mirrors)
     Canvas {
         id: ambientCanvas
         anchors.fill: parent
@@ -149,10 +159,19 @@ Item {
             ctx.reset()
             var centerX = width / 2; var centerY = height / 2
             ctx.lineWidth = 1; ctx.strokeStyle = "white"
-            var minAngle = (wallClock.time.getMinutes() - 15) * 6 * radian
-            ctx.beginPath(); ctx.arc(centerX + Math.cos(minAngle)*width*0.4, centerY + Math.sin(minAngle)*width*0.4, 2, 0, 2*Math.PI); ctx.stroke()
+
+            var minAngle  = (wallClock.time.getMinutes() - 15) * 6 * radian
             var hourAngle = ((wallClock.time.getHours() % 12 - 3) * 30 + wallClock.time.getMinutes() * 0.5) * radian
+
+            // Primary dots
+            ctx.beginPath(); ctx.arc(centerX + Math.cos(minAngle)*width*0.4,  centerY + Math.sin(minAngle)*width*0.4,  2, 0, 2*Math.PI); ctx.stroke()
             ctx.beginPath(); ctx.arc(centerX + Math.cos(hourAngle)*width*0.34, centerY + Math.sin(hourAngle)*width*0.34, 3, 0, 2*Math.PI); ctx.stroke()
+
+            // Isomorphic mirror dots (180° opposite, half opacity)
+            ctx.globalAlpha = 0.4
+            ctx.beginPath(); ctx.arc(centerX - Math.cos(minAngle)*width*0.4,  centerY - Math.sin(minAngle)*width*0.4,  2, 0, 2*Math.PI); ctx.stroke()
+            ctx.beginPath(); ctx.arc(centerX - Math.cos(hourAngle)*width*0.34, centerY - Math.sin(hourAngle)*width*0.34, 3, 0, 2*Math.PI); ctx.stroke()
+            ctx.globalAlpha = 1.0
         }
     }
 
@@ -191,6 +210,22 @@ Item {
         font.letterSpacing: 1
         color: "white"
         style: Text.Outline; styleColor: colorGreen
+        text: wallClock.time.toLocaleString(Qt.locale(), use12H.value ? "h:mm" : "HH:mm")
+    }
+
+    // Isomorphic mirror of time — reflected vertically below center, faded
+    Text {
+        visible: !displayAmbient
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: timeDisplay.bottom
+        anchors.topMargin: -timeDisplay.height * 0.1
+        font.pixelSize: parent.height * 0.14
+        font.family: pixelify.name
+        font.bold: true
+        font.letterSpacing: 1
+        color: colorGreen
+        opacity: 0.18
+        transform: Scale { origin.x: timeDisplay.width / 2; origin.y: 0; yScale: -1 }
         text: wallClock.time.toLocaleString(Qt.locale(), use12H.value ? "h:mm" : "HH:mm")
     }
 
