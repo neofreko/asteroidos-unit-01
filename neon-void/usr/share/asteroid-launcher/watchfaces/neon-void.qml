@@ -12,12 +12,19 @@
  */
 
 import QtQuick 2.1
+import Nemo.Mce 1.0
+import org.asteroid.sensorlogd 1.0
 
 Item {
     id: root
     anchors.fill: parent
 
     readonly property var radian: Math.PI / 180
+
+    // Live sensor data
+    property int  hrmBpm:   0
+    property bool hrmActive: false
+    property int  stepCount: 0
 
     // Palette sampled from EVA-01 reference image
     readonly property color colorPurple: "#a870c4" // Armor purple (sampled)
@@ -483,29 +490,81 @@ Item {
         }
     }
 
-    // Metadata - Using Pixelify Sans for consistent pixel aesthetic
-    Text {
+    // ── Live Sensor Components ──────────────────────────────────────────────
+    MceBatteryLevel { id: batteryLevel }
+
+    HrmSensor {
+        active: !displayAmbient && hrmActive
+        onReadingChanged: { root.hrmBpm = reading.bpm }
+    }
+
+    StepsDataLoader {
+        id: stepsLoader
+        Component.onCompleted: { stepsLoader.getTodayTotal(); root.stepCount = stepsLoader.todayTotal }
+        onDataChanged:         { stepsLoader.getTodayTotal(); root.stepCount = stepsLoader.todayTotal }
+    }
+
+    // ── HUD Row (below clock) — Battery + Heart Rate ────────────────────────
+    Row {
         visible: !displayAmbient
         anchors.top: hexagonCore.bottom
-        anchors.topMargin: parent.height * 0.03
+        anchors.topMargin: parent.height * 0.025
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: parent.height * 0.05
-        font.family: elektra.name
-        color: colorGreen
-        opacity: 0.6 + (breathingFactor * 0.4)
-        text: "SYNC: 100%"
+        spacing: parent.width * 0.06
+
+        // Battery → SYNC %
+        Text {
+            font.pixelSize: parent.parent.height * 0.047
+            font.family: elektra.name
+            color: {
+                var p = batteryLevel.percent
+                if (p <= 20) return colorRed
+                if (p <= 50) return colorYellow
+                return colorGreen
+            }
+            opacity: 0.6 + (breathingFactor * 0.4)
+            text: "SYNC: " + batteryLevel.percent + "%"
+        }
+
+        // Heart Rate
+        Text {
+            font.pixelSize: parent.parent.height * 0.047
+            font.family: elektra.name
+            color: colorRed
+            opacity: (hrmBpm > 0 ? 1.0 : 0.35) * (0.6 + breathingFactor * 0.4)
+            text: "♥ " + (hrmBpm > 0 ? hrmBpm + " BPM" : "---")
+            MouseArea {
+                anchors.fill: parent
+                onClicked: root.hrmActive = !root.hrmActive
+            }
+        }
     }
-    
-    Text {
+
+    // ── HUD Row (above clock) — Date + Steps ────────────────────────────────
+    Row {
         visible: !displayAmbient
         anchors.bottom: hexagonCore.top
-        anchors.bottomMargin: parent.height * 0.03
+        anchors.bottomMargin: parent.height * 0.025
         anchors.horizontalCenter: parent.horizontalCenter
-        font.pixelSize: parent.height * 0.05
-        font.family: elektra.name
-        color: colorYellow 
-        opacity: 0.6 + (breathingFactor * 0.4)
-        text: "UNIT-01 ACTIVE"
+        spacing: parent.width * 0.06
+
+        // Date
+        Text {
+            font.pixelSize: parent.parent.height * 0.047
+            font.family: elektra.name
+            color: colorYellow
+            opacity: 0.6 + (breathingFactor * 0.4)
+            text: wallClock.time.toLocaleString(Qt.locale(), "ddd dd MMM").toUpperCase()
+        }
+
+        // Steps
+        Text {
+            font.pixelSize: parent.parent.height * 0.047
+            font.family: elektra.name
+            color: colorPurple
+            opacity: 0.6 + (breathingFactor * 0.4)
+            text: "⬡ " + (stepCount > 0 ? stepCount : "0")
+        }
     }
 
     // Digital Time Center — NASDAQER for EVA HUD feel
