@@ -249,6 +249,53 @@ Item {
             drawPlate("left")
             drawPlate("right")
 
+            // --- Throat — segmented neck below visor, purple + green ring ---
+            var throatTop = cy - height * 0.14
+            var throatBot = cy - height * 0.01
+            var throatW   = width * 0.09
+            // body — tapers slightly from top to bottom
+            ctx.beginPath()
+            ctx.moveTo(cx - throatW,        throatTop)
+            ctx.lineTo(cx + throatW,        throatTop)
+            ctx.lineTo(cx + throatW * 0.75, throatBot)
+            ctx.lineTo(cx - throatW * 0.75, throatBot)
+            ctx.closePath()
+            ctx.fillStyle = Qt.rgba(colorPurple.r, colorPurple.g, colorPurple.b, 0.70 * breath)
+            ctx.fill()
+            ctx.lineWidth = 1.2
+            ctx.strokeStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.8 * breath)
+            ctx.stroke()
+            // inner shadow on left face
+            ctx.beginPath()
+            ctx.moveTo(cx - throatW,        throatTop)
+            ctx.lineTo(cx - throatW * 0.35, throatTop)
+            ctx.lineTo(cx - throatW * 0.25, throatBot)
+            ctx.lineTo(cx - throatW * 0.75, throatBot)
+            ctx.closePath()
+            ctx.fillStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.45 * breath)
+            ctx.fill()
+            // segmentation crease line across middle
+            var creaseY = throatTop + (throatBot - throatTop) * 0.45
+            var creaseWTop = throatW * (1 - 0.45 * 0.25)
+            ctx.beginPath()
+            ctx.moveTo(cx - creaseWTop, creaseY)
+            ctx.lineTo(cx + creaseWTop, creaseY)
+            ctx.lineWidth = 1
+            ctx.strokeStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.6 * breath)
+            ctx.stroke()
+            // green ring near bottom of throat
+            var tRingY = throatTop + (throatBot - throatTop) * 0.78
+            var tRingW = throatW * 0.85
+            ctx.beginPath()
+            ctx.moveTo(cx - tRingW, tRingY)
+            ctx.lineTo(cx + tRingW, tRingY)
+            ctx.lineWidth = height * 0.012
+            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.85 * breath)
+            ctx.stroke()
+            ctx.lineWidth = height * 0.025
+            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.18 * breath)
+            ctx.stroke()
+
             // --- Forehead horn — curved organic tusk, leans forward ---
             var hBaseY  = cy - height * 0.30   // wide base at head top
             var hBaseW  = width  * 0.13        // substantial base width
