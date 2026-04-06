@@ -14,7 +14,6 @@
 import QtQuick 2.1
 import Nemo.Mce 1.0
 import QtSensors 5.11
-import org.asteroid.sensorlogd 1.0
 
 Item {
     id: root
@@ -25,7 +24,6 @@ Item {
     // Live sensor data
     property int  hrmBpm:   0
     property bool hrmActive: false
-    property int  stepCount: 0
 
     // Palette sampled from EVA-01 reference image
     readonly property color colorPurple: "#a870c4" // Armor purple (sampled)
@@ -499,12 +497,6 @@ Item {
         onReadingChanged: { root.hrmBpm = reading.bpm }
     }
 
-    StepsDataLoader {
-        id: stepsLoader
-        Component.onCompleted: { stepsLoader.getTodayTotal(); root.stepCount = stepsLoader.todayTotal }
-        onDataChanged:         { stepsLoader.getTodayTotal(); root.stepCount = stepsLoader.todayTotal }
-    }
-
     // ── HUD Row (below clock) — Battery + Heart Rate ────────────────────────
     Row {
         visible: !displayAmbient
@@ -541,13 +533,12 @@ Item {
         }
     }
 
-    // ── HUD Row (above clock) — Date + Steps ────────────────────────────────
+    // ── HUD Row (above clock) — Date only ───────────────────────────────────
     Row {
         visible: !displayAmbient
         anchors.bottom: hexagonCore.top
         anchors.bottomMargin: parent.height * 0.025
         anchors.horizontalCenter: parent.horizontalCenter
-        spacing: parent.width * 0.06
 
         // Date
         Text {
@@ -556,15 +547,6 @@ Item {
             color: colorYellow
             opacity: 0.6 + (breathingFactor * 0.4)
             text: wallClock.time.toLocaleString(Qt.locale(), "ddd dd MMM").toUpperCase()
-        }
-
-        // Steps
-        Text {
-            font.pixelSize: parent.parent.height * 0.047
-            font.family: elektra.name
-            color: colorPurple
-            opacity: 0.6 + (breathingFactor * 0.4)
-            text: "⬡ " + (stepCount > 0 ? stepCount : "0")
         }
     }
 
@@ -673,9 +655,10 @@ Item {
             anchors.bottomMargin: parent.height * 0.18
             font.pixelSize: parent.height * 0.05
             font.family: elektra.name
+            font.letterSpacing: 2
             color: colorYellow
             opacity: 0.7
-            text: "UNIT-01 STANDBY"
+            text: "UNIT-01  STANDBY"
         }
 
         // SYNC % label
@@ -685,11 +668,12 @@ Item {
             anchors.bottomMargin: parent.height * 0.12
             font.pixelSize: parent.height * 0.045
             font.family: elektra.name
+            font.letterSpacing: 2
             color: batteryLevel.percent <= 20 ? colorRed
                  : batteryLevel.percent <= 50 ? colorYellow
                  : colorGreen
             opacity: 0.8
-            text: "SYNC: " + batteryLevel.percent + "%"
+            text: "SYNC:  " + batteryLevel.percent + "%"
         }
     }
 
