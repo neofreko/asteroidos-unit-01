@@ -268,29 +268,49 @@ Item {
             ctx.fillStyle = Qt.rgba(1, 1, 0.8, 0.35 * breath)
             ctx.fill()
 
-            // --- Mono-eye visor ---
+            // --- Mono-eye visor — angular "venom" shape with sharp edges ---
             var visY  = cy - height * 0.22
-            var visRx = width * 0.22
-            var visRy = height * 0.038
-            var grd = ctx.createRadialGradient(cx, visY, 0, cx, visY, visRx)
-            grd.addColorStop(0.0, Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.5 * breath))
-            grd.addColorStop(0.6, Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.15 * breath))
+            var visW  = width * 0.26   // half-width to the sharp tip
+            var visH  = height * 0.044 // half-height at the widest point
+            // outer glow first
+            var grd = ctx.createRadialGradient(cx, visY, 0, cx, visY, visW)
+            grd.addColorStop(0.0, Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.45 * breath))
+            grd.addColorStop(0.55, Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.12 * breath))
             grd.addColorStop(1.0, "transparent")
             ctx.fillStyle = grd
             ctx.beginPath()
-            ctx.ellipse(cx - visRx*1.2, visY - visRy*3, visRx*2.4, visRy*6)
+            ctx.ellipse(cx - visW*1.15, visY - visH*2.8, visW*2.3, visH*5.6)
             ctx.fill()
-            ctx.beginPath()
-            ctx.ellipse(cx - visRx, visY - visRy, visRx*2, visRy*2)
-            ctx.fillStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.55 * breath)
+            // Angular venom-eye path: sharp left/right tips, flat angled top/bottom edges
+            function eyePath(rx, ry) {
+                ctx.moveTo(cx - rx,         visY)               // left sharp tip
+                ctx.lineTo(cx - rx*0.52,    visY - ry)          // upper-left edge
+                ctx.lineTo(cx + rx*0.52,    visY - ry)          // upper-right edge
+                ctx.lineTo(cx + rx,         visY)               // right sharp tip
+                ctx.lineTo(cx + rx*0.52,    visY + ry)          // lower-right edge
+                ctx.lineTo(cx - rx*0.52,    visY + ry)          // lower-left edge
+                ctx.closePath()
+            }
+            // filled body
+            ctx.beginPath(); eyePath(visW, visH)
+            ctx.fillStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.6 * breath)
             ctx.fill()
-            ctx.lineWidth = 1.5
-            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.9 * breath)
+            // hard outline
+            ctx.beginPath(); eyePath(visW, visH)
+            ctx.lineWidth = 1.8
+            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 1.0 * breath)
             ctx.stroke()
-            ctx.beginPath()
-            ctx.ellipse(cx - visRx*0.55, visY - visRy*0.55, visRx*0.5, visRy*0.8)
-            ctx.fillStyle = Qt.rgba(1, 1, 1, 0.3 * breath)
+            // inner lens — smaller hex-eye, brighter core
+            ctx.beginPath(); eyePath(visW * 0.55, visH * 0.55)
+            ctx.fillStyle = Qt.rgba(0.7, 1.0, 0.4, 0.45 * breath)
             ctx.fill()
+            // specular glint — tiny bright slash near upper-left
+            ctx.beginPath()
+            ctx.moveTo(cx - visW*0.35, visY - visH*0.55)
+            ctx.lineTo(cx - visW*0.08, visY - visH*0.65)
+            ctx.lineWidth = 1.5
+            ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.55 * breath)
+            ctx.stroke()
         }
         onBreathChanged: requestPaint()
         Component.onCompleted: requestPaint()
