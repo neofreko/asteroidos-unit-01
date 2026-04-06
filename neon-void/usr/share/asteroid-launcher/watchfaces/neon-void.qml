@@ -49,6 +49,84 @@ Item {
         color: colorBgOuter
     }
 
+    // Living Background — drifting energy particles
+    Canvas {
+        id: particleCanvas
+        anchors.fill: parent
+        visible: !displayAmbient
+
+        property var particles: []
+        property bool initialized: false
+
+        function initParticles() {
+            var count = 28
+            particles = []
+            for (var i = 0; i < count; i++) {
+                particles.push({
+                    x:     Math.random() * width,
+                    y:     Math.random() * height,
+                    r:     0.8 + Math.random() * 2.2,
+                    speed: 0.18 + Math.random() * 0.38,
+                    drift: (Math.random() - 0.5) * 0.25,
+                    alpha: 0.1 + Math.random() * 0.5,
+                    hue:   Math.random() < 0.6 ? "green" : "purple",
+                    phase: Math.random() * Math.PI * 2
+                })
+            }
+            initialized = true
+        }
+
+        Timer {
+            id: particleTimer
+            interval: 33
+            running: !displayAmbient
+            repeat: true
+            onTriggered: {
+                if (!particleCanvas.initialized) particleCanvas.initParticles()
+                var ps = particleCanvas.particles
+                for (var i = 0; i < ps.length; i++) {
+                    ps[i].y     -= ps[i].speed
+                    ps[i].x     += ps[i].drift
+                    ps[i].phase += 0.03
+                    ps[i].alpha  = 0.15 + 0.35 * Math.abs(Math.sin(ps[i].phase))
+                    if (ps[i].y < -4) {
+                        ps[i].y = particleCanvas.height + 2
+                        ps[i].x = Math.random() * particleCanvas.width
+                    }
+                    if (ps[i].x < -4 || ps[i].x > particleCanvas.width + 4) {
+                        ps[i].x = Math.random() * particleCanvas.width
+                    }
+                }
+                particleCanvas.requestPaint()
+            }
+        }
+
+        onPaint: {
+            if (!initialized) return
+            var ctx = getContext("2d")
+            ctx.reset()
+            for (var i = 0; i < particles.length; i++) {
+                var p = particles[i]
+                var col = p.hue === "green"
+                    ? Qt.rgba(colorGreen.r,  colorGreen.g,  colorGreen.b,  p.alpha)
+                    : Qt.rgba(colorPurple.r, colorPurple.g, colorPurple.b, p.alpha)
+                // Soft glow halo
+                var grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3.5)
+                grd.addColorStop(0, col)
+                grd.addColorStop(1, "transparent")
+                ctx.fillStyle = grd
+                ctx.beginPath()
+                ctx.arc(p.x, p.y, p.r * 3.5, 0, 2 * Math.PI)
+                ctx.fill()
+                // Hard core
+                ctx.fillStyle = col
+                ctx.beginPath()
+                ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI)
+                ctx.fill()
+            }
+        }
+    }
+
     // Atmosphere Glow
     Canvas {
         id: bgGlow
