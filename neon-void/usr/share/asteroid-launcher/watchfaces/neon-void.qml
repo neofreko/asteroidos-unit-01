@@ -39,6 +39,17 @@ Item {
         NumberAnimation { from: 1.0; to: 0.7; duration: 3500; easing.type: Easing.InOutSine }
     }
 
+    // Whole-surface contraction/expansion pulse
+    transformOrigin: Item.Center
+    property real pulseScale: 1.0
+    SequentialAnimation on pulseScale {
+        running: !displayAmbient
+        loops: Animation.Infinite
+        NumberAnimation { from: 0.97; to: 1.03; duration: 1800; easing.type: Easing.InOutSine }
+        NumberAnimation { from: 1.03; to: 0.97; duration: 2200; easing.type: Easing.InOutSine }
+    }
+    scale: pulseScale
+
     // Load Pixelify Sans and other technical fonts
     FontLoader { id: pixelify; source: "../fonts/PixelifySans-Bold.ttf" }
     FontLoader { id: simpleness; source: "../fonts/Simpleness.otf" }
