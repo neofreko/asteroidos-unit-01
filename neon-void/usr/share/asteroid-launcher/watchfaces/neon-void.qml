@@ -260,10 +260,10 @@ Item {
             ctx.lineTo(cx + throatW * 0.75, throatBot)
             ctx.lineTo(cx - throatW * 0.75, throatBot)
             ctx.closePath()
-            ctx.fillStyle = Qt.rgba(colorPurple.r, colorPurple.g, colorPurple.b, 0.70 * breath)
+            ctx.fillStyle = Qt.rgba(colorYellow.r, colorYellow.g, colorYellow.b, 0.80 * breath)
             ctx.fill()
             ctx.lineWidth = 1.2
-            ctx.strokeStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.8 * breath)
+            ctx.strokeStyle = Qt.rgba(colorYellow.r * 0.6, colorYellow.g * 0.6, colorYellow.b * 0.1, 0.9 * breath)
             ctx.stroke()
             // inner shadow on left face
             ctx.beginPath()
@@ -272,7 +272,7 @@ Item {
             ctx.lineTo(cx - throatW * 0.25, throatBot)
             ctx.lineTo(cx - throatW * 0.75, throatBot)
             ctx.closePath()
-            ctx.fillStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.45 * breath)
+            ctx.fillStyle = Qt.rgba(colorYellow.r * 0.4, colorYellow.g * 0.4, 0, 0.5 * breath)
             ctx.fill()
             // segmentation crease line across middle
             var creaseY = throatTop + (throatBot - throatTop) * 0.45
@@ -281,7 +281,7 @@ Item {
             ctx.moveTo(cx - creaseWTop, creaseY)
             ctx.lineTo(cx + creaseWTop, creaseY)
             ctx.lineWidth = 1
-            ctx.strokeStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.6 * breath)
+            ctx.strokeStyle = Qt.rgba(colorYellow.r * 0.5, colorYellow.g * 0.5, 0, 0.7 * breath)
             ctx.stroke()
             // green ring near bottom of throat
             var tRingY = throatTop + (throatBot - throatTop) * 0.78
