@@ -51,9 +51,10 @@ Item {
     }
     scale: pulseScale
 
-    // Load Pixelify Sans and other technical fonts
-    FontLoader { id: pixelify; source: "../fonts/PixelifySans-Bold.ttf" }
-    FontLoader { id: simpleness; source: "../fonts/Simpleness.otf" }
+    // Load fonts — NASDAQER for clock digits, Pixelify for labels
+    FontLoader { id: nasdaqer; source: "../../fonts/NASDAQER_Fett.ttf" }
+    FontLoader { id: pixelify; source: "../../fonts/PixelifySans-Bold.ttf" }
+    FontLoader { id: simpleness; source: "../../fonts/Simpleness.otf" }
 
     // Background
     Rectangle {
@@ -506,14 +507,14 @@ Item {
         text: "UNIT-01 ACTIVE"
     }
 
-    // Digital Time Center - Pixelify Sans for that modern pixel feel
+    // Digital Time Center — NASDAQER for EVA HUD feel
     Text {
         id: timeDisplay
         anchors.centerIn: parent
         font.pixelSize: parent.height * 0.14
-        font.family: pixelify.name
+        font.family: nasdaqer.name
         font.bold: true
-        font.letterSpacing: 1
+        font.letterSpacing: 2
         color: "white"
         style: Text.Outline; styleColor: colorGreen
         text: wallClock.time.toLocaleString(Qt.locale(), use12H.value ? "h:mm" : "HH:mm")
@@ -526,9 +527,9 @@ Item {
         anchors.top: timeDisplay.bottom
         anchors.topMargin: -timeDisplay.height * 0.1
         font.pixelSize: parent.height * 0.14
-        font.family: pixelify.name
+        font.family: nasdaqer.name
         font.bold: true
-        font.letterSpacing: 1
+        font.letterSpacing: 2
         color: colorGreen
         opacity: 0.18
         transform: Scale { origin.x: timeDisplay.width / 2; origin.y: 0; yScale: -1 }
