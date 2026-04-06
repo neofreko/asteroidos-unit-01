@@ -12,6 +12,8 @@ Item {
     // simulated compass
     property real compassAzimuth: 48.0
     property bool compassActive: true
+    // simulated step count
+    property int steps: 4872
     // simultated wifi connection
     property bool wifiPowered: true
 }

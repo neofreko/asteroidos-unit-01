@@ -13,6 +13,7 @@
 
 import QtQuick 2.1
 import Nemo.Mce 1.0
+import QtSensors 5.11
 import org.asteroid.sensorlogd 1.0
 
 Item {
