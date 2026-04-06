@@ -60,7 +60,42 @@ Item {
         color: colorBgOuter
     }
 
-    // Living Background — drifting energy particles
+    // AsteroidOS wallpaper motif — large logo slowly drifting/rotating in bg
+    Image {
+        id: bgLogoOuter
+        source: "../watchfaces-img/asteroid-logo.svg"
+        width: parent.width * 1.1
+        height: width
+        anchors.centerIn: parent
+        opacity: 0.07
+        visible: !displayAmbient
+        transformOrigin: Item.Center
+        RotationAnimation on rotation {
+            from: 0; to: 360
+            duration: 60000
+            loops: Animation.Infinite
+            running: !displayAmbient
+        }
+    }
+
+    Image {
+        id: bgLogoInner
+        source: "../watchfaces-img/asteroid-logo.svg"
+        width: parent.width * 0.55
+        height: width
+        anchors.centerIn: parent
+        opacity: 0.10
+        visible: !displayAmbient
+        transformOrigin: Item.Center
+        RotationAnimation on rotation {
+            from: 360; to: 0
+            duration: 38000
+            loops: Animation.Infinite
+            running: !displayAmbient
+        }
+    }
+
+
     Canvas {
         id: particleCanvas
         anchors.fill: parent
