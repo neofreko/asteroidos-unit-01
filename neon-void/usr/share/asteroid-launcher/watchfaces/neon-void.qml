@@ -51,8 +51,9 @@ Item {
     }
     scale: pulseScale
 
-    // Load fonts — NASDAQER for clock digits, Pixelify for labels
+    // Load fonts — NASDAQER for clock digits, ELEKTRA for labels
     FontLoader { id: nasdaqer; source: "../../fonts/NASDAQER_Fett.ttf" }
+    FontLoader { id: elektra;  source: "../../fonts/ELEKTRA.ttf" }
     FontLoader { id: pixelify; source: "../../fonts/PixelifySans-Bold.ttf" }
     FontLoader { id: simpleness; source: "../../fonts/Simpleness.otf" }
 
@@ -489,7 +490,7 @@ Item {
         anchors.topMargin: parent.height * 0.03
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: parent.height * 0.05
-        font.family: pixelify.name
+        font.family: elektra.name
         color: colorGreen
         opacity: 0.6 + (breathingFactor * 0.4)
         text: "SYNC: 100%"
@@ -501,7 +502,7 @@ Item {
         anchors.bottomMargin: parent.height * 0.03
         anchors.horizontalCenter: parent.horizontalCenter
         font.pixelSize: parent.height * 0.05
-        font.family: pixelify.name
+        font.family: elektra.name
         color: colorYellow 
         opacity: 0.6 + (breathingFactor * 0.4)
         text: "UNIT-01 ACTIVE"
