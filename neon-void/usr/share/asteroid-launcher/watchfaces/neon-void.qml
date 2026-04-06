@@ -597,6 +597,102 @@ Item {
         text: wallClock.time.toLocaleString(Qt.locale(), use12H.value ? "h:mm" : "HH:mm")
     }
 
+    // ── Nightstand Mode ─────────────────────────────────────────────────────
+    Item {
+        id: nightstandMode
+        readonly property bool active: nightstand
+        anchors.fill: parent
+        visible: nightstandMode.active
+
+        // Deep crimson glow background
+        Rectangle {
+            anchors.fill: parent
+            color: "#000000"
+        }
+        Rectangle {
+            anchors.centerIn: parent
+            width: parent.width * 0.7
+            height: width
+            radius: width / 2
+            color: "transparent"
+            layer.enabled: true
+            layer.smooth: true
+            Rectangle {
+                anchors.centerIn: parent
+                width: parent.width
+                height: width
+                radius: width / 2
+                color: colorBgInner
+                opacity: 0.55
+            }
+        }
+
+        // Segmented battery arc — purple segments filling clockwise
+        Repeater {
+            property real charge: batteryLevel.percent / 100
+            property int  segments: 40
+            property real stroke: 0.055
+            property real scale: 0.44 - stroke / 2
+            model: segments
+            Rectangle {
+                property real angle: -90 + (index / parent.segments) * 360
+                property bool filled: (index / parent.segments) < parent.charge
+                x: nightstandMode.width  / 2 + Math.cos(angle * Math.PI/180) * nightstandMode.width  * parent.scale - width/2
+                y: nightstandMode.height / 2 + Math.sin(angle * Math.PI/180) * nightstandMode.height * parent.scale - height/2
+                width:  nightstandMode.width  * parent.stroke * 0.6
+                height: nightstandMode.height * parent.stroke
+                radius: width / 2
+                color: filled
+                    ? (batteryLevel.percent <= 20 ? colorRed
+                       : batteryLevel.percent <= 50 ? colorYellow
+                       : colorGreen)
+                    : "#1a1a2e"
+                rotation: angle
+                opacity: filled ? 0.9 : 0.3
+            }
+        }
+
+        // Time display
+        Text {
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: -parent.height * 0.04
+            font.pixelSize: parent.height * 0.18
+            font.family: nasdaqer.name
+            font.bold: true
+            font.letterSpacing: 2
+            color: "white"
+            style: Text.Outline
+            styleColor: colorGreen
+            text: wallClock.time.toLocaleString(Qt.locale(), use12H.value ? "h:mm" : "HH:mm")
+        }
+
+        // UNIT-01 STANDBY label
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: parent.height * 0.18
+            font.pixelSize: parent.height * 0.05
+            font.family: elektra.name
+            color: colorYellow
+            opacity: 0.7
+            text: "UNIT-01 STANDBY"
+        }
+
+        // SYNC % label
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: parent.height * 0.12
+            font.pixelSize: parent.height * 0.045
+            font.family: elektra.name
+            color: batteryLevel.percent <= 20 ? colorRed
+                 : batteryLevel.percent <= 50 ? colorYellow
+                 : colorGreen
+            opacity: 0.8
+            text: "SYNC: " + batteryLevel.percent + "%"
+        }
+    }
+
     Connections {
         target: desktop
         function onDisplayAmbientChanged() {
