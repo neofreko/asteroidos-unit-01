@@ -249,24 +249,52 @@ Item {
             drawPlate("left")
             drawPlate("right")
 
-            // --- Forehead horn ---
-            var hornBaseW = width * 0.07
-            var hornTip   = cy - height * 0.47
-            var hornBase  = cy - height * 0.32
+            // --- Forehead horn — curved organic tusk, leans forward ---
+            var hBaseY  = cy - height * 0.30   // wide base at head top
+            var hBaseW  = width  * 0.13        // substantial base width
+            var hTipX   = cx + width  * 0.03   // tip leans slightly forward (right)
+            var hTipY   = cy - height * 0.47   // tip height
+            var hMidX   = cx + width  * 0.05   // mid control point leans forward
+            var hMidY   = cy - height * 0.39
+
+            // right face of horn (outer curve)
             ctx.beginPath()
-            ctx.moveTo(cx,              hornTip)
-            ctx.lineTo(cx - hornBaseW,  hornBase)
-            ctx.lineTo(cx + hornBaseW,  hornBase)
+            ctx.moveTo(cx + hBaseW * 0.5,  hBaseY)
+            ctx.quadraticCurveTo(hMidX + width*0.06,  hMidY, hTipX, hTipY)
+            ctx.quadraticCurveTo(hMidX - width*0.04,  hMidY + height*0.01, cx - hBaseW * 0.5, hBaseY)
             ctx.closePath()
-            ctx.fillStyle = Qt.rgba(colorYellow.r, colorYellow.g, colorYellow.b, 0.75 * breath)
+            ctx.fillStyle = Qt.rgba(colorPurple.r, colorPurple.g, colorPurple.b, 0.85 * breath)
             ctx.fill()
+
+            // central spine ridge
             ctx.beginPath()
-            ctx.moveTo(cx,                  hornTip + height*0.01)
-            ctx.lineTo(cx - hornBaseW*0.45, hornBase - height*0.005)
-            ctx.lineTo(cx + hornBaseW*0.45, hornBase - height*0.005)
+            ctx.moveTo(cx,               hBaseY)
+            ctx.quadraticCurveTo(hMidX + width*0.01, hMidY, hTipX, hTipY)
+            ctx.lineWidth = 2
+            ctx.strokeStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.7 * breath)
+            ctx.stroke()
+
+            // dark inner shadow — left face depth
+            ctx.beginPath()
+            ctx.moveTo(cx - hBaseW * 0.5, hBaseY)
+            ctx.quadraticCurveTo(hMidX - width*0.06, hMidY + height*0.01, hTipX, hTipY)
+            ctx.quadraticCurveTo(hMidX - width*0.01, hMidY, cx, hBaseY)
             ctx.closePath()
-            ctx.fillStyle = Qt.rgba(1, 1, 0.8, 0.35 * breath)
+            ctx.fillStyle = Qt.rgba(colorPurpleDark.r, colorPurpleDark.g, colorPurpleDark.b, 0.55 * breath)
             ctx.fill()
+
+            // green ring near base of horn
+            var ringY = hBaseY - height * 0.025
+            ctx.beginPath()
+            ctx.moveTo(cx - hBaseW * 0.42, ringY)
+            ctx.lineTo(cx + hBaseW * 0.42, ringY)
+            ctx.lineWidth = height * 0.013
+            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.85 * breath)
+            ctx.stroke()
+            // green ring glow
+            ctx.lineWidth = height * 0.028
+            ctx.strokeStyle = Qt.rgba(colorGreen.r, colorGreen.g, colorGreen.b, 0.2 * breath)
+            ctx.stroke()
 
             // --- Mono-eye visor — angular "venom" shape with sharp edges ---
             var visY  = cy - height * 0.22
