@@ -497,13 +497,12 @@ Item {
         onReadingChanged: { root.hrmBpm = reading.bpm }
     }
 
-    // ── HUD Row (below clock) — Battery + Heart Rate ────────────────────────
+    // ── HUD Row (below clock) — Battery ─────────────────────────────────────
     Row {
         visible: !displayAmbient
         anchors.top: hexagonCore.bottom
         anchors.topMargin: parent.height * 0.025
         anchors.horizontalCenter: parent.horizontalCenter
-        spacing: parent.width * 0.06
 
         // Battery → SYNC %
         Text {
@@ -518,26 +517,32 @@ Item {
             opacity: 0.6 + (breathingFactor * 0.4)
             text: "SYNC: " + batteryLevel.percent + "%"
         }
+    }
 
-        // Heart Rate
-        Item {
-            width:  parent.parent.width * 0.4
-            height: parent.parent.height * 0.12
-            Text {
-                id: hrmLabel
-                anchors.centerIn: parent
-                font.pixelSize: parent.parent.parent.height * 0.047
-                font.family: elektra.name
-                color: colorRed
-                opacity: (hrmBpm > 0 ? 1.0 : 0.35) * (0.6 + breathingFactor * 0.4)
-                text: "♥ " + (hrmBpm > 0 ? hrmBpm + " BPM" : "---")
-            }
-            MouseArea {
-                anchors.fill: parent
-                onPressAndHold: {
-                    root.hrmActive = !root.hrmActive
-                    if (!root.hrmActive) root.hrmBpm = 0
-                }
+    // ── Heart Rate — bottom-right corner touch zone ───────────────────────────
+    Item {
+        visible: !displayAmbient
+        anchors.right:  parent.right
+        anchors.bottom: parent.bottom
+        width:  parent.width  * 0.5
+        height: parent.height * 0.5
+
+        Text {
+            id: hrmLabel
+            anchors.top:              parent.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.topMargin:        parent.height * 0.08
+            font.pixelSize: root.height * 0.047
+            font.family: elektra.name
+            color: colorRed
+            opacity: (hrmBpm > 0 ? 1.0 : 0.35) * (0.6 + breathingFactor * 0.4)
+            text: "♥ " + (hrmBpm > 0 ? hrmBpm + " BPM" : "---")
+        }
+        MouseArea {
+            anchors.fill: parent
+            onPressAndHold: {
+                root.hrmActive = !root.hrmActive
+                if (!root.hrmActive) root.hrmBpm = 0
             }
         }
     }
