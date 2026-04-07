@@ -37,25 +37,8 @@ Item {
     readonly property color colorBgOuter: "#000000"
     readonly property color colorBgInner: "#380000"
 
-    // Unified "Breathing" Controller
-    property real breathingFactor: 1.0
-    SequentialAnimation on breathingFactor {
-        running: !displayAmbient
-        loops: Animation.Infinite
-        NumberAnimation { from: 0.7; to: 1.0; duration: 2500; easing.type: Easing.InOutSine }
-        NumberAnimation { from: 1.0; to: 0.7; duration: 3500; easing.type: Easing.InOutSine }
-    }
-
-    // Whole-surface contraction/expansion pulse
-    transformOrigin: Item.Center
-    property real pulseScale: 1.0
-    SequentialAnimation on pulseScale {
-        running: !displayAmbient
-        loops: Animation.Infinite
-        NumberAnimation { from: 0.97; to: 1.03; duration: 1800; easing.type: Easing.InOutSine }
-        NumberAnimation { from: 1.03; to: 0.97; duration: 2200; easing.type: Easing.InOutSine }
-    }
-    scale: pulseScale
+    // Static intensity — animations removed to conserve battery
+    readonly property real breathingFactor: 1.0
 
     // Load fonts — NASDAQER for clock digits, ELEKTRA for labels
     FontLoader { id: nasdaqer; source: "../../fonts/NASDAQER_Fett.ttf" }
@@ -69,7 +52,7 @@ Item {
         color: colorBgOuter
     }
 
-    // AsteroidOS wallpaper motif — large logo slowly drifting/rotating in bg
+    // AsteroidOS wallpaper motif — static background logos
     Image {
         id: bgLogoOuter
         source: "../watchfaces-img/asteroid-logo.svg"
@@ -78,13 +61,6 @@ Item {
         anchors.centerIn: parent
         opacity: 0.07
         visible: !displayAmbient
-        transformOrigin: Item.Center
-        RotationAnimation on rotation {
-            from: 0; to: 360
-            duration: 60000
-            loops: Animation.Infinite
-            running: !displayAmbient
-        }
     }
 
     Image {
@@ -95,109 +71,25 @@ Item {
         anchors.centerIn: parent
         opacity: 0.10
         visible: !displayAmbient
-        transformOrigin: Item.Center
-        RotationAnimation on rotation {
-            from: 360; to: 0
-            duration: 38000
-            loops: Animation.Infinite
-            running: !displayAmbient
-        }
     }
 
 
-    Canvas {
-        id: particleCanvas
-        anchors.fill: parent
-        visible: !displayAmbient
-
-        property var particles: []
-        property bool initialized: false
-
-        function initParticles() {
-            var count = 28
-            particles = []
-            for (var i = 0; i < count; i++) {
-                particles.push({
-                    x:     Math.random() * width,
-                    y:     Math.random() * height,
-                    r:     0.8 + Math.random() * 2.2,
-                    speed: 0.18 + Math.random() * 0.38,
-                    drift: (Math.random() - 0.5) * 0.25,
-                    alpha: 0.1 + Math.random() * 0.5,
-                    hue:   Math.random() < 0.6 ? "green" : "purple",
-                    phase: Math.random() * Math.PI * 2
-                })
-            }
-            initialized = true
-        }
-
-        Timer {
-            id: particleTimer
-            interval: 33
-            running: !displayAmbient
-            repeat: true
-            onTriggered: {
-                if (!particleCanvas.initialized) particleCanvas.initParticles()
-                var ps = particleCanvas.particles
-                for (var i = 0; i < ps.length; i++) {
-                    ps[i].y     -= ps[i].speed
-                    ps[i].x     += ps[i].drift
-                    ps[i].phase += 0.03
-                    ps[i].alpha  = 0.15 + 0.35 * Math.abs(Math.sin(ps[i].phase))
-                    if (ps[i].y < -4) {
-                        ps[i].y = particleCanvas.height + 2
-                        ps[i].x = Math.random() * particleCanvas.width
-                    }
-                    if (ps[i].x < -4 || ps[i].x > particleCanvas.width + 4) {
-                        ps[i].x = Math.random() * particleCanvas.width
-                    }
-                }
-                particleCanvas.requestPaint()
-            }
-        }
-
-        onPaint: {
-            if (!initialized) return
-            var ctx = getContext("2d")
-            ctx.reset()
-            for (var i = 0; i < particles.length; i++) {
-                var p = particles[i]
-                var col = p.hue === "green"
-                    ? Qt.rgba(colorGreen.r,  colorGreen.g,  colorGreen.b,  p.alpha)
-                    : Qt.rgba(colorPurple.r, colorPurple.g, colorPurple.b, p.alpha)
-                // Soft glow halo
-                var grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 3.5)
-                grd.addColorStop(0, col)
-                grd.addColorStop(1, "transparent")
-                ctx.fillStyle = grd
-                ctx.beginPath()
-                ctx.arc(p.x, p.y, p.r * 3.5, 0, 2 * Math.PI)
-                ctx.fill()
-                // Hard core
-                ctx.fillStyle = col
-                ctx.beginPath()
-                ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI)
-                ctx.fill()
-            }
-        }
-    }
 
     // Atmosphere Glow
     Canvas {
         id: bgGlow
         anchors.fill: parent
         visible: !displayAmbient
-        property real intensity: breathingFactor
         onPaint: {
             var ctx = getContext("2d")
             ctx.reset()
-            var grd = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width * 0.5 * intensity);
-            grd.addColorStop(0, Qt.rgba(colorBgInner.r, colorBgInner.g, colorBgInner.b, 0.8 * intensity));
+            var grd = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width * 0.5);
+            grd.addColorStop(0, Qt.rgba(colorBgInner.r, colorBgInner.g, colorBgInner.b, 0.8));
             grd.addColorStop(1, "transparent");
             ctx.fillStyle = grd;
             ctx.fillRect(0, 0, width, height);
         }
-        onIntensityChanged: requestPaint()
+        Component.onCompleted: requestPaint()
     }
 
     // Static Corner Brackets
@@ -395,11 +287,9 @@ Item {
             ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.55 * breath)
             ctx.stroke()
         }
-        onBreathChanged: requestPaint()
+        onBreathChanged: {} // breathingFactor is static; no repaint needed
         Component.onCompleted: requestPaint()
     }
-
-    // AT Field Core
     Canvas {
         id: hexagonCore
         width: parent.width * 0.42
@@ -460,7 +350,7 @@ Item {
             ctx.beginPath(); ctx.arc(x, y, radius - 1, startAngle + 0.05, endAngle - 0.05, false); ctx.lineWidth = 1.2; ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.9 * opacityScale); ctx.stroke()
             ctx.setLineDash([])
         }
-        onBreathChanged: requestPaint()
+        onBreathChanged: {} // breathingFactor is static; no repaint needed
     }
 
     // Ambient Indicators (with isomorphic mirrors)
