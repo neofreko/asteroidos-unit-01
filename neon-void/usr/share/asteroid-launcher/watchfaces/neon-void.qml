@@ -528,7 +528,7 @@ Item {
             text: "♥ " + (hrmBpm > 0 ? hrmBpm + " BPM" : "---")
             MouseArea {
                 anchors.fill: parent
-                onClicked: root.hrmActive = !root.hrmActive
+                onPressAndHold: root.hrmActive = !root.hrmActive
             }
         }
     }
