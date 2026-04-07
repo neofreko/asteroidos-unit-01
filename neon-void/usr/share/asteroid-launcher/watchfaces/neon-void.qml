@@ -520,15 +520,23 @@ Item {
         }
 
         // Heart Rate
-        Text {
-            font.pixelSize: parent.parent.height * 0.047
-            font.family: elektra.name
-            color: colorRed
-            opacity: (hrmBpm > 0 ? 1.0 : 0.35) * (0.6 + breathingFactor * 0.4)
-            text: "♥ " + (hrmBpm > 0 ? hrmBpm + " BPM" : "---")
+        Item {
+            width:  hrmLabel.width
+            height: hrmLabel.height
+            Text {
+                id: hrmLabel
+                font.pixelSize: parent.parent.parent.height * 0.047
+                font.family: elektra.name
+                color: colorRed
+                opacity: (hrmBpm > 0 ? 1.0 : 0.35) * (0.6 + breathingFactor * 0.4)
+                text: "♥ " + (hrmBpm > 0 ? hrmBpm + " BPM" : "---")
+            }
             MouseArea {
                 anchors.fill: parent
-                onPressAndHold: root.hrmActive = !root.hrmActive
+                onPressAndHold: {
+                    root.hrmActive = !root.hrmActive
+                    if (!root.hrmActive) root.hrmBpm = 0
+                }
             }
         }
     }
