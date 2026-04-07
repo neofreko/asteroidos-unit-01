@@ -521,10 +521,11 @@ Item {
 
         // Heart Rate
         Item {
-            width:  hrmLabel.width
-            height: hrmLabel.height
+            width:  parent.parent.width * 0.4
+            height: parent.parent.height * 0.12
             Text {
                 id: hrmLabel
+                anchors.centerIn: parent
                 font.pixelSize: parent.parent.parent.height * 0.047
                 font.family: elektra.name
                 color: colorRed
